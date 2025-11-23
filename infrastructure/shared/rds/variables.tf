@@ -1,3 +1,40 @@
+# NETWORKING - Variables requeridas para arquitectura privada
+variable "vpc_id" {
+  description = "VPC ID donde se desplegará la RDS (debe ser la misma VPC donde están los servicios ECS)"
+  type        = string
+}
+
+variable "db_subnet_ids" {
+  description = "IDs de las subnets PRIVADAS donde se desplegará la RDS (mínimo 2 en diferentes AZs)"
+  type        = list(string)
+  validation {
+    condition     = length(var.db_subnet_ids) >= 2
+    error_message = "Se requieren al menos 2 subnets en diferentes Availability Zones para RDS."
+  }
+}
+
+
+# SECURITY - Control de acceso a la base de datos
+variable "allowed_security_group_ids" {
+  description = "Lista de Security Group IDs permitidos para acceder a RDS (ej: SG de ECS API y Query-API)"
+  type        = list(string)
+  default     = []
+}
+
+variable "allowed_cidr_blocks" {
+  description = "Lista de CIDR blocks permitidos para acceder a RDS (ej: VPN, Bastion). Dejar vacío para máxima seguridad."
+  type        = list(string)
+  default     = []
+}
+
+variable "vpc_security_group_ids" {
+  description = "Lista opcional de Security Group IDs adicionales para asociar a la RDS"
+  type        = list(string)
+  default     = []
+}
+
+
+# DATABASE CONFIGURATION
 variable "db_identifier" {
   description = "Database identifier"
   type        = string
@@ -6,7 +43,7 @@ variable "db_identifier" {
 variable "engine_version" {
   description = "PostgreSQL engine version"
   type        = string
-  default     = "16.3"
+  default     = "15.7"
 }
 
 variable "instance_class" {
@@ -29,11 +66,11 @@ variable "database_name" {
 variable "master_username" {
   description = "Master username for the database"
   type        = string
-  default     = "postgres"
+  default     = "filmlens_user"  
 }
 
 variable "publicly_accessible" {
-  description = "Whether the database is publicly accessible"
+  description = "Whether the database is publicly accessible - DEBE SER FALSE para producción"
   type        = bool
   default     = false
 }
@@ -50,6 +87,14 @@ variable "deletion_protection" {
   default     = true
 }
 
+variable "multi_az" {
+  description = "Enable Multi-AZ deployment for high availability"
+  type        = bool
+  default     = false
+}
+
+
+# BACKUP & MAINTENANCE
 variable "backup_retention_period" {
   description = "Backup retention period in days"
   type        = number
@@ -68,12 +113,8 @@ variable "maintenance_window" {
   default     = "mon:04:00-mon:05:00"
 }
 
-variable "vpc_security_group_ids" {
-  description = "List of VPC security group IDs"
-  type        = list(string)
-  default     = []
-}
 
+# TAGGING
 variable "tags" {
   description = "Tags to apply to the database"
   type        = map(string)
