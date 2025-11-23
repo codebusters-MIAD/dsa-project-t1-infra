@@ -77,3 +77,20 @@ output "db_subnet_group_arn" {
   description = "ARN del DB Subnet Group"
   value       = aws_db_subnet_group.this.arn
 }
+
+
+# SECRETS MANAGER OUTPUTS
+output "db_secret_arn" {
+  description = "ARN del secret en AWS Secrets Manager con las credenciales de la base de datos"
+  value       = aws_secretsmanager_secret.db_credentials.arn
+}
+
+output "db_secret_name" {
+  description = "Nombre del secret en AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.db_credentials.name
+}
+
+output "db_secret_id" {
+  description = "ID del secret en AWS Secrets Manager"
+  value       = aws_secretsmanager_secret.db_credentials.id
+}

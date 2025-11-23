@@ -1,4 +1,3 @@
-
 module "postgres_db" {
   source = "../../shared/rds"
 
