@@ -197,8 +197,8 @@ module "ecs" {
     {
       name               = "api"
       image              = var.api_image
-      cpu                = "512"
-      memory             = "1024"
+      cpu                = "1024"
+      memory             = "2048"
       container_port     = 8000
       desired_count      = 1
       execution_role_arn = module.iam_execution_role.role_arn
