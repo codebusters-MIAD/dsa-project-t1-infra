@@ -205,6 +205,8 @@ module "ecs" {
       task_role_arn      = module.iam_task_role_api.role_arn
       security_group_id  = module.sg_api.security_group_id
       target_group_arn   = null  # No target group
+      command            = ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+      cpu_architecture   = "ARM64"
 
       environment_variables = [
         {
@@ -252,6 +254,7 @@ module "ecs" {
       task_role_arn      = module.iam_task_role_query_api.role_arn
       security_group_id  = module.sg_query_api.security_group_id
       target_group_arn   = null  # No target group
+      cpu_architecture   = "ARM64"
 
       environment_variables = [
         {
@@ -294,11 +297,3 @@ module "ecs" {
   log_retention_days        = 7
   tags                      = var.tags
 }
-
-
-# ROUTE 53 DNS RECORDS
-# Note: Without ALB, DNS records will need to be updated manually with the public IPs
-# of the ECS tasks once they are running. You can get the IPs with:
-# aws ecs list-tasks --cluster MIAD-cluster --service-name MIAD-api-service
-# aws ecs describe-tasks --cluster MIAD-cluster --tasks <task-arn> --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text
-# aws ec2 describe-network-interfaces --network-interface-ids <eni-id> --query 'NetworkInterfaces[0].Association.PublicIp' --output text

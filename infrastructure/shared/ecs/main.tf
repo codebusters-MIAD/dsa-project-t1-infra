@@ -43,34 +43,42 @@ resource "aws_ecs_task_definition" "this" {
   execution_role_arn       = each.value.execution_role_arn
   task_role_arn            = each.value.task_role_arn
 
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = each.value.cpu_architecture
+  }
+
   container_definitions = jsonencode([
-    {
-      name      = each.value.name
-      image     = each.value.image
-      essential = true
+    merge(
+      {
+        name      = each.value.name
+        image     = each.value.image
+        essential = true
 
-      portMappings = [
-        {
-          containerPort = each.value.container_port
-          protocol      = "tcp"
+        portMappings = [
+          {
+            containerPort = each.value.container_port
+            protocol      = "tcp"
+          }
+        ]
+
+        environment = each.value.environment_variables
+
+        secrets = each.value.secrets
+
+        logConfiguration = {
+          logDriver = "awslogs"
+          options = {
+            "awslogs-group"         = aws_cloudwatch_log_group.this[each.key].name
+            "awslogs-region"        = var.aws_region
+            "awslogs-stream-prefix" = "ecs"
+          }
         }
-      ]
 
-      environment = each.value.environment_variables
-
-      secrets = each.value.secrets
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          "awslogs-group"         = aws_cloudwatch_log_group.this[each.key].name
-          "awslogs-region"        = var.aws_region
-          "awslogs-stream-prefix" = "ecs"
-        }
-      }
-
-      healthCheck = try(each.value.health_check, null)
-    }
+        healthCheck = try(each.value.health_check, null)
+      },
+      each.value.command != null ? { command = each.value.command } : {}
+    )
   ])
 
   tags = merge(

@@ -26,6 +26,8 @@ variable "services" {
     task_role_arn         = string
     security_group_id     = string
     target_group_arn      = string
+    command               = optional(list(string))
+    cpu_architecture      = optional(string, "X86_64")
     environment_variables = list(object({
       name  = string
       value = string
