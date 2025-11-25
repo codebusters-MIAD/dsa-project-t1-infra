@@ -8,7 +8,7 @@ FilmLens es un sistema de clasificación y análisis de películas que utiliza M
 
 ## Arquitectura del Sistema
 
-![Arquitectura AWS](docs/architecture-diagram.png)
+![Arquitectura AWS](images/AWS-filmlens.jpg)
 
 Nuestra infraestructura está construida sobre AWS y consta de:
 
