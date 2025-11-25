@@ -38,3 +38,5 @@ terraform.rc
 
 # Docs
 docs/
+
+.DS_Store

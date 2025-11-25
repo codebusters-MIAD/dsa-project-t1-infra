@@ -183,6 +183,87 @@ module "iam_task_role_query_api" {
   tags = var.tags
 }
 
+# IAM Role: Task Role for MLflow Service
+module "iam_task_role_mlflow" {
+  source = "../../shared/iam"
+
+  project_name = var.project_name
+  role_name    = "ecs-task-role-mlflow"
+  role_type    = "task"
+
+  custom_policies = [
+    {
+      name = "mlflow-s3-and-secrets"
+      policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect = "Allow"
+            Action = [
+              "s3:PutObject",
+              "s3:GetObject",
+              "s3:DeleteObject",
+              "s3:ListBucket"
+            ]
+            Resource = [
+              "arn:aws:s3:::${var.mlflow_s3_artifact_bucket}",
+              "arn:aws:s3:::${var.mlflow_s3_artifact_bucket}/*"
+            ]
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "secretsmanager:GetSecretValue"
+            ]
+            Resource = var.db_secret_arn
+          }
+        ]
+      })
+    }
+  ]
+
+  tags = var.tags
+}
+
+# Security Group: MLflow Service (Direct Internet Access)
+module "sg_mlflow" {
+  source = "../../shared/security-groups"
+
+  project_name = var.project_name
+  name         = "mlflow"
+  description  = "Security group for MLflow tracking server with direct internet access"
+  vpc_id       = var.vpc_id
+
+  ingress_rules = [
+    {
+      from_port   = 5000
+      to_port     = 5000
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow HTTP traffic from internet on port 5000"
+    }
+  ]
+
+  egress_rules = [
+    {
+      from_port   = 5432
+      to_port     = 5432
+      protocol    = "tcp"
+      cidr_blocks = [data.aws_vpc.main.cidr_block]
+      description = "Allow traffic to RDS PostgreSQL"
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow HTTPS to S3 and AWS services"
+    }
+  ]
+
+  tags = var.tags
+}
+
 
 # ECS CLUSTER AND SERVICES (Direct Public IP Access - No ALB)
 module "ecs" {
@@ -284,6 +365,47 @@ module "ecs" {
         {
           name  = "PORT"
           value = "8001"
+        }
+      ]
+
+      secrets = []
+
+      health_check = null
+    },
+    {
+      name               = "mlflow"
+      image              = var.mlflow_image
+      cpu                = "1024"
+      memory             = "2048"
+      container_port     = 5000
+      desired_count      = 0
+      execution_role_arn = module.iam_execution_role.role_arn
+      task_role_arn      = module.iam_task_role_mlflow.role_arn
+      security_group_id  = module.sg_mlflow.security_group_id
+      target_group_arn   = null
+      cpu_architecture   = "ARM64"
+      command            = [
+        "mlflow", "server",
+        "--backend-store-uri", var.mlflow_backend_store_uri,
+        "--default-artifact-root", "s3://${var.mlflow_s3_artifact_bucket}",
+        "--serve-artifacts",
+        "--artifacts-destination", "s3://${var.mlflow_s3_artifact_bucket}",
+        "--host", "0.0.0.0",
+        "--port", "5000"
+      ]
+
+      environment_variables = [
+        {
+          name  = "MLFLOW_BACKEND_STORE_URI"
+          value = var.mlflow_backend_store_uri
+        },
+        {
+          name  = "MLFLOW_DEFAULT_ARTIFACT_ROOT"
+          value = "s3://${var.mlflow_s3_artifact_bucket}"
+        },
+        {
+          name  = "AWS_DEFAULT_REGION"
+          value = var.aws_region
         }
       ]
 

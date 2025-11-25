@@ -49,6 +49,23 @@ variable "query_api_image" {
   type        = string
 }
 
+variable "mlflow_image" {
+  description = "Docker image URI for MLflow service"
+  type        = string
+}
+
+# MLflow Configuration
+variable "mlflow_backend_store_uri" {
+  description = "PostgreSQL connection string para MLflow backend store (formato: postgresql://user:pass@host:port/db)"
+  type        = string
+  sensitive   = true
+}
+
+variable "mlflow_s3_artifact_bucket" {
+  description = "Nombre del bucket S3 para artifacts de MLflow"
+  type        = string
+}
+
 # Tags
 variable "tags" {
   description = "Additional tags to apply to all resources"
