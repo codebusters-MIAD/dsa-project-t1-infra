@@ -173,3 +173,9 @@ Las IPs públicas cambian cuando un servicio se reinicia. Para IPs fijas, consid
 
 **Proyecto MIAD - Storytelling con Datos**  
 Universidad de los Andes | 2025
+
+**Estudiantes**  
+- Margarita Bain
+- Rodolfo Moreno
+- Keisy Gonzalez
+- William Pinilla
