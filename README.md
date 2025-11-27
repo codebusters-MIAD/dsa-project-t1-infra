@@ -179,3 +179,8 @@ Universidad de los Andes | 2025
 - Rodolfo Moreno
 - Keisy Gonzalez
 - William Pinilla
+
+**Fase 2 - Implementaciones** 
+- Automatizar la extraccion de datos de TMDB
+- Mejorar el proceso de MLops que se tiene
+- Creacion de pipelines de datos a traves de una herramienta
