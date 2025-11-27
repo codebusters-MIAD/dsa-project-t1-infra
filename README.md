@@ -12,6 +12,7 @@ FilmLens es un sistema de clasificación y análisis de películas que utiliza M
 - **Clúster**: Componente de configuración principal para deplegar el ECS Fargate con sus services y tasks.
 - **Internet-config**: Componente de configuración para configurar los dominios de Atesorapp con Filmlens y también ACM certificados
 - **MlFlow-storage**: Componente para definir la persitencia en S3 de los modelos.
+- **storage**: Componente para definir los recursos como bases de datos y storage en la nube de la solución de filmlens
 
 
 ![Arquitectura AWS](images/AWS-filmlens.jpg)
