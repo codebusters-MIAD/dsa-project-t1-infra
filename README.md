@@ -54,7 +54,7 @@ infrastructure/
 │   ├── cluster/           # Configuración del cluster ECS y servicios
 │   ├── storage/           # Configuración del bucket S3
 │   └── mlflow-storage/    # Configuración de almacenamiento para MLflow S#
-└── shared/                # Módulos reutilizables para ECS
+└── shared/                # Módulos reutilizables para cualquier componente de negocio
     ├── ecs/               
     ├── iam/               
     ├── rds/               
@@ -134,7 +134,7 @@ aws ecs update-service --cluster MIAD-cluster --service api --desired-count 1
 
 ### Actualizar una imagen de Docker
 
-Las imagenes de Docker son versionadas en el otro repositorio, dado que la creacion depende del codigo fuente.
+Las imagenes de Docker son versionadas en el otro repositorio, dado que la creación depende del código fuente.
 
 1. Sube la nueva imagen a ECR
 2. Modifica el tag en `terraform.tfvars`
